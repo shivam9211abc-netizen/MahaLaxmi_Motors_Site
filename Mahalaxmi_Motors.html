@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahalaxmi Motors & Properties | Premium Used Cars & Real Estate Rohini</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGold: '#D4AF37',
+                        brandGoldDark: '#AA820A',
+                        brandDark: '#0F172A',
+                        brandCard: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Lucide Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase App & Services -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBaE1YtetHI7YGaAKB5EPzzPZIHVvjZo7U",
+            authDomain: "mahalaxmi-3dd61.firebaseapp.com",
+            projectId: "mahalaxmi-3dd61",
+            storageBucket: "mahalaxmi-3dd61.firebasestorage.app",
+            messagingSenderId: "196048494589",
+            appId: "1:196048494589:web:9152bc2518d856e6c04394",
+            measurementId: "G-BP4YC4JH4E"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        window.db = db;
+        window.auth = auth;
+        window.firestoreMethods = { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot };
+        window.authMethods = { signInWithEmailAndPassword, signOut, onAuthStateChanged };
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-amber-600 via-brandGold to-amber-600 text-slate-950 font-semibold text-xs sm:text-sm py-2 px-4 text-center flex justify-between items-center z-50">
+        <div class="flex items-center gap-2 mx-auto">
+            <span>📍 B6/1, Pocket 6, Sector 5, Rohini, Delhi, 110085</span>
+            <span class="hidden md:inline">|</span>
+            <span class="hidden md:inline">📞 09310290485</span>
+        </div>
+        <div id="adminBadge" class="hidden bg-slate-950 text-amber-400 text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <i class="fa-solid fa-user-shield"></i> Admin Logged In
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="sticky top-0 z-40 glass-nav border-b border-slate-800 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo & Brand Name -->
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brandGold to-amber-200 flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg shadow-amber-500/20">
+                        M
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+                            MAHALAXMI <span class="text-brandGold">MOTORS</span>
+                        </h1>
+                        <p class="text-[10px] text-slate-400 tracking-wider uppercase">And Properties • Rohini, Delhi</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links & Action Buttons -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="#inventory" class="text-slate-300 hover:text-brandGold transition-colors text-sm font-medium">Inventory</a>
+                    <a href="#about" class="text-slate-300 hover:text-brandGold transition-colors text-sm font-medium">About Us</a>
+                    <a href="#contact" class="text-slate-300 hover:text-brandGold transition-colors text-sm font-medium">Contact & Location</a>
+                    
+                    <!-- Admin Login/Status Button -->
+                    <button id="adminBtn" onclick="openAdminModal()" class="border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-lock text-brandGold"></i> <span id="adminBtnText">Admin Login</span>
+                    </button>
+
+                    <!-- Add Stock Button (Only visible to admin) -->
+                    <button id="addStockBtn" onclick="openAddModal()" class="hidden bg-gradient-to-r from-brandGold to-amber-500 hover:from-amber-500 hover:to-brandGold text-slate-950 font-bold text-xs px-4 py-2 rounded-lg shadow-lg transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add New Vehicle
+                    </button>
+                </div>
+
+                <!-- Social & Quick Action Icons -->
+                <div class="flex items-center gap-2.5">
+                    <a href="https://instagram.com/mahalaxmimotors02" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-tr from-purple-600 to-pink-500 text-white p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity" title="11.2L+ Instagram Followers">
+                        <i class="fa-brands fa-instagram text-base"></i>
+                        <span class="hidden sm:inline">11.2L+</span>
+                    </a>
+                    
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-blue-700 transition-colors" title="16.3L+ Facebook Followers">
+                        <i class="fa-brands fa-facebook-f text-sm"></i>
+                        <span class="hidden sm:inline">16.3L+</span>
+                    </a>
+
+                    <a href="https://wa.me/919310290485?text=Hello%20Mahalaxmi%20Motors,%20I%20am%20interested%20in%20buying/selling%20a%20vehicle." target="_blank" rel="noopener noreferrer" class="bg-emerald-600 text-white p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:bg-emerald-500 transition-colors">
+                        <i class="fa-brands fa-whatsapp text-base"></i>
+                        <span class="hidden lg:inline">WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Floating Mobile Admin Controls -->
+    <div class="fixed bottom-6 right-6 z-40 md:hidden flex flex-col gap-3">
+        <button id="mobileAddBtn" onclick="openAddModal()" class="hidden bg-brandGold text-slate-950 p-4 rounded-full shadow-2xl font-bold flex items-center justify-center text-xl">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        <button onclick="openAdminModal()" class="bg-slate-800 text-amber-400 border border-slate-700 p-3.5 rounded-full shadow-2xl text-lg flex items-center justify-center">
+            <i class="fa-solid fa-user-shield"></i>
+        </button>
+    </div>
+
+    <!-- Hero Banner Section -->
+    <header class="relative bg-gradient-to-b from-slate-900 to-slate-950 py-12 md:py-20 border-b border-slate-800/80 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <span class="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold inline-block mb-4">
+                Delhi's Trusted Used Car & Property Hub
+            </span>
+            <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
+                Find Your Certified Pre-Owned Car & Dream Property in <span class="text-brandGold">Rohini, Delhi</span>
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base mt-4 max-w-2xl mx-auto">
+                Verified vehicles with complete service records, non-accidental guarantee, transparent pricing, and instant ownership transfer support.
+            </p>
+
+            <!-- Social Media Proof Cards -->
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <div class="bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+                    <div class="text-pink-500 text-2xl"><i class="fa-brands fa-instagram"></i></div>
+                    <div class="text-left">
+                        <p class="text-xs text-slate-400">Instagram Community</p>
+                        <p class="text-base font-bold text-white">11.2 Lakh+ Followers</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+                    <div class="text-blue-500 text-2xl"><i class="fa-brands fa-facebook"></i></div>
+                    <div class="text-left">
+                        <p class="text-xs text-slate-400">Facebook Page</p>
+                        <p class="text-base font-bold text-white">16.3 Lakh+ Followers</p>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 px-4 py-2.5 rounded-xl flex items-center gap-3">
+                    <div class="text-emerald-500 text-2xl"><i class="fa-solid fa-phone-volume"></i></div>
+                    <div class="text-left">
+                        <p class="text-xs text-slate-400">Direct Showroom Contact</p>
+                        <p class="text-base font-bold text-white">09310290485</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        
+        <!-- Inventory Section -->
+        <section id="inventory" class="scroll-mt-24">
+            
+            <!-- Filters Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-car text-brandGold"></i> Available Inventory
+                    </h3>
+                    <p class="text-slate-400 text-xs sm:text-sm mt-1">Browse verified used cars and property listings in Rohini, Delhi.</p>
+                </div>
+
+                <!-- Filter & Search Controls -->
+                <div class="w-full md:w-auto flex flex-wrap gap-2.5">
+                    <input type="text" id="searchInput" oninput="filterStock()" placeholder="Search make, model, year..." class="bg-slate-900 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brandGold w-full sm:w-48">
+                    
+                    <select id="typeFilter" onchange="filterStock()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brandGold">
+                        <option value="ALL">All Categories</option>
+                        <option value="CAR">Pre-Owned Cars</option>
+                        <option value="PROPERTY">Properties</option>
+                    </select>
+
+                    <select id="fuelFilter" onchange="filterStock()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brandGold">
+                        <option value="ALL">All Fuel Types</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="CNG">CNG</option>
+                        <option value="Electric">Electric</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Inventory Grid -->
+            <div id="stockGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Vehicle cards loaded dynamically -->
+            </div>
+
+            <!-- Empty State Message -->
+            <div id="noResults" class="hidden text-center py-16 bg-slate-900/50 rounded-2xl border border-slate-800">
+                <i class="fa-solid fa-car-rear text-4xl text-slate-600 mb-3"></i>
+                <h4 class="text-lg font-bold text-slate-300">No Vehicles or Properties Match Your Filter</h4>
+                <p class="text-xs text-slate-500 mt-1">Try resetting your search query or selecting a different fuel type.</p>
+            </div>
+        </section>
+
+        <!-- Location & Contact Info Section -->
+        <section id="contact" class="mt-20 border-t border-slate-800/80 pt-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                
+                <!-- Address Card -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <span class="text-brandGold text-xs font-bold uppercase tracking-wider">Visit Showroom</span>
+                        <h3 class="text-2xl font-extrabold text-white mt-1 mb-4">Mahalaxmi Motors And Properties</h3>
+                        
+                        <div class="space-y-4 text-slate-300 text-sm">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-location-dot text-brandGold mt-1 text-base"></i>
+                                <div>
+                                    <p class="font-semibold text-white">Address:</p>
+                                    <p class="text-slate-400 leading-relaxed">B6/1, Pocket 6, Sector 5, Rohini, Delhi, 110085</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-phone text-brandGold text-base"></i>
+                                <div>
+                                    <p class="font-semibold text-white">Phone Number:</p>
+                                    <a href="tel:09310290485" class="text-amber-400 hover:underline font-bold">09310290485</a>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-clock text-brandGold text-base"></i>
+                                <div>
+                                    <p class="font-semibold text-white">Working Hours:</p>
+                                    <p class="text-slate-400">Open 7 Days a Week: 10:00 AM – 8:30 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex flex-wrap gap-3">
+                        <a href="https://wa.me/919310290485" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl text-center text-xs flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Chat on WhatsApp
+                        </a>
+                        <a href="tel:09310290485" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl text-center text-xs flex items-center justify-center gap-2 transition-colors">
+                            <i class="fa-solid fa-phone"></i> Call Showroom
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Google Maps Embed -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden min-h-[300px]">
+                    <iframe 
+                        title="Mahalaxmi Motors Location"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3499.736630800762!2d77.108605!3d28.712431!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d03d368e7343b%3A0xb5a0895c8c5c48b!2sPocket%206%2C%20Sector%205%2C%20Rohini%2C%20Delhi%2C%20110085!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
+                        class="w-full h-full border-0 min-h-[350px]" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-8 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Mahalaxmi Motors And Properties. All Rights Reserved.</p>
+            <p class="mt-1">B6/1, Pocket 6, Sector 5, Rohini, Delhi, 110085 • Contact: 09310290485</p>
+        </div>
+    </footer>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 sm:p-8 shadow-2xl relative">
+            
+            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Login View -->
+            <div id="loginView">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Admin Authentication</h3>
+                    <p class="text-xs text-slate-400 mt-1">Log in to manage stock listings and deletions.</p>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Admin Email</label>
+                        <input type="email" id="adminEmail" required placeholder="admin@mahalaxmimotors.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brandGold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="adminPassword" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brandGold pr-10">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+                                <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="loginError" class="hidden text-red-400 text-xs bg-red-950/40 border border-red-800 p-2.5 rounded-lg"></div>
+
+                    <button type="submit" id="loginSubmitBtn" class="w-full bg-brandGold hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-colors shadow-lg">
+                        Authenticate & Access Admin Mode
+                    </button>
+                </form>
+            </div>
+
+            <!-- Authenticated View -->
+            <div id="authenticatedView" class="hidden text-center space-y-4">
+                <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">You Are Currently Logged In</h3>
+                <p class="text-xs text-slate-400">Admin controls are now active. You can add new stock or delete items directly from listing cards.</p>
+
+                <div class="pt-2 space-y-2">
+                    <button onclick="closeAdminModal(); openAddModal();" class="w-full bg-brandGold hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg text-xs">
+                        + Add New Stock
+                    </button>
+                    <button onclick="handleLogout()" class="w-full bg-slate-800 hover:bg-slate-700 text-red-400 font-semibold py-2 rounded-lg text-xs border border-slate-700">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ADD NEW VEHICLE / PROPERTY MODAL -->
+    <div id="addModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-2xl p-6 my-8 shadow-2xl relative">
+            <button onclick="closeAddModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 class="text-xl font-bold text-white mb-1">Add New Inventory Item</h3>
+            <p class="text-xs text-slate-400 mb-6">Add vehicle or property details with multiple images for showroom visitors.</p>
+
+            <form onsubmit="handleAddStock(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Listing Type</label>
+                        <select id="addCategory" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <option value="CAR">Pre-Owned Car</option>
+                            <option value="PROPERTY">Real Estate Property</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Title / Model Name</label>
+                        <input type="text" id="addTitle" required placeholder="e.g. Maruti Suzuki Swift ZXi+" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Price (₹)</label>
+                        <input type="text" id="addPrice" required placeholder="e.g. 5,45,000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Year / Construction</label>
+                        <input type="text" id="addYear" placeholder="e.g. 2021" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">KM Driven / Size</label>
+                        <input type="text" id="addKm" placeholder="e.g. 34,000 km" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Fuel Type / Property Spec</label>
+                        <select id="addFuel" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="CNG">CNG</option>
+                            <option value="Electric">Electric</option>
+                            <option value="Commercial / Residential">Property</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Transmission / Owner</label>
+                        <input type="text" id="addTransmission" placeholder="e.g. Manual | 1st Owner" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Images (Multiple Files Supported)</label>
+                    <input type="file" id="addImageFiles" multiple accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-400">
+                    <p class="text-[11px] text-slate-500 mt-1">Select multiple vehicle photos from gallery.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">OR Image URLs (One URL per line)</label>
+                    <textarea id="addImageUrls" rows="2" placeholder="https://images.unsplash.com/photo-..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white font-mono"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-brandGold hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-xs transition-colors shadow-lg">
+                    Save Item to Showroom Inventory
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DETAIL VIEW MODAL WITH CAROUSEL -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl relative my-8">
+            <button onclick="closeDetailModal()" class="absolute top-3 right-3 z-20 bg-slate-950/70 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Carousel Display -->
+            <div class="relative h-64 sm:h-80 bg-slate-950">
+                <img id="detailImage" src="" alt="" class="w-full h-full object-cover">
+                
+                <button onclick="prevImage()" class="absolute left-3 top-1/2 -translate-y-1/2 bg-slate-950/70 hover:bg-slate-900 text-white w-9 h-9 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <button onclick="nextImage()" class="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-950/70 hover:bg-slate-900 text-white w-9 h-9 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <div class="absolute bottom-3 right-3 bg-slate-950/80 text-amber-400 text-xs px-2.5 py-1 rounded-full font-bold" id="imageCounter">
+                    1 / 1
+                </div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="p-6">
+                <div class="flex justify-between items-start gap-4 mb-3">
+                    <div>
+                        <h3 id="detailTitle" class="text-xl font-bold text-white"></h3>
+                        <p id="detailSpecs" class="text-xs text-slate-400 mt-1"></p>
+                    </div>
+                    <div id="detailPrice" class="text-xl font-black text-brandGold"></div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a id="detailWhatsapp" href="#" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-center text-xs flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Inquire via WhatsApp
+                    </a>
+                    <a href="tel:09310290485" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-phone"></i> Call Showroom
+                    </a>
+                    <button id="detailDeleteBtn" onclick="" class="hidden bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-3 rounded-xl text-xs">
+                        <i class="fa-solid fa-trash"></i> Delete Listing
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-brandGold/40 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold hidden flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-brandGold"></i>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script>
+        // Initial Demo Seed Data
+        let sampleStock = [
+            {
+                id: "car-101",
+                type: "CAR",
+                title: "Hyundai Creta SX 1.5 Petrol",
+                price: "11,85,000",
+                year: "2021",
+                km: "28,000 km",
+                fuel: "Petrol",
+                transmission: "Manual | 1st Owner",
+                images: [
+                    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: "car-102",
+                type: "CAR",
+                title: "Maruti Suzuki Swift ZXi+",
+                price: "5,95,000",
+                year: "2020",
+                km: "35,000 km",
+                fuel: "Petrol",
+                transmission: "Manual | 1st Owner",
+                images: [
+                    "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: "car-103",
+                type: "CAR",
+                title: "Mahindra Thar LX 4x4 Hard Top",
+                price: "13,50,000",
+                year: "2022",
+                km: "18,000 km",
+                fuel: "Diesel",
+                transmission: "Automatic | 1st Owner",
+                images: [
+                    "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"
+                ]
+            }
+        ];
+
+        let stockList = [...sampleStock];
+        let currentAdminUser = null;
+        let activeCarouselImages = [];
+        let currentCarouselIndex = 0;
+        let currentActiveItem = null;
+
+        // Initialize Local Storage & Load Data
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = localStorage.getItem('mahalaxmi_stock');
+            if (stored) {
+                try { stockList = JSON.parse(stored); } catch(e) {}
+            } else {
+                localStorage.setItem('mahalaxmi_stock', JSON.stringify(stockList));
+            }
+            renderStock();
+            initAuthListener();
+        });
+
+        // Listen for Firebase Auth State Changes
+        function initAuthListener() {
+            if (window.authMethods && window.auth) {
+                window.authMethods.onAuthStateChanged(window.auth, (user) => {
+                    currentAdminUser = user;
+                    updateAdminUI();
+                    renderStock();
+                });
+            }
+        }
+
+        // Toggle Password Input Visibility
+        function togglePasswordVisibility() {
+            const input = document.getElementById('adminPassword');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.className = "fa-solid fa-eye-slash";
+            } else {
+                input.type = "password";
+                icon.className = "fa-solid fa-eye";
+            }
+        }
+
+        // Render Inventory Grid
+        function renderStock() {
+            const grid = document.getElementById('stockGrid');
+            const noRes = document.getElementById('noResults');
+            grid.innerHTML = '';
+
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const typeVal = document.getElementById('typeFilter').value;
+            const fuelVal = document.getElementById('fuelFilter').value;
+
+            const filtered = stockList.filter(item => {
+                const matchesSearch = item.title.toLowerCase().includes(searchVal) || (item.year && item.year.includes(searchVal));
+                const matchesType = typeVal === 'ALL' || item.type === typeVal;
+                const matchesFuel = fuelVal === 'ALL' || (item.fuel && item.fuel.toLowerCase() === fuelVal.toLowerCase());
+                return matchesSearch && matchesType && matchesFuel;
+            });
+
+            if (filtered.length === 0) {
+                noRes.classList.remove('hidden');
+            } else {
+                noRes.classList.add('hidden');
+            }
+
+            filtered.forEach(item => {
+                const imgUrl = (item.images && item.images.length > 0) ? item.images[0] : 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80';
+                
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-amber-500/50 transition-all shadow-xl flex flex-col group";
+                
+                card.innerHTML = `
+                    <div class="relative h-48 bg-slate-950 overflow-hidden cursor-pointer" onclick="openDetailModal('${item.id}')">
+                        <img src="${imgUrl}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute top-3 left-3 bg-slate-950/80 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            ${item.type || 'CAR'}
+                        </div>
+                        ${item.images && item.images.length > 1 ? `
+                            <div class="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-camera"></i> ${item.images.length}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="font-extrabold text-white text-base leading-snug hover:text-amber-400 cursor-pointer" onclick="openDetailModal('${item.id}')">${item.title}</h4>
+                                <span class="text-brandGold font-black text-base whitespace-nowrap">₹${item.price}</span>
+                            </div>
+
+                            <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-400">
+                                ${item.year ? `<span class="bg-slate-950 px-2 py-1 rounded border border-slate-800"><i class="fa-solid fa-calendar-days text-amber-400 mr-1"></i>${item.year}</span>` : ''}
+                                ${item.km ? `<span class="bg-slate-950 px-2 py-1 rounded border border-slate-800"><i class="fa-solid fa-gauge-high text-amber-400 mr-1"></i>${item.km}</span>` : ''}
+                                ${item.fuel ? `<span class="bg-slate-950 px-2 py-1 rounded border border-slate-800"><i class="fa-solid fa-gas-pump text-amber-400 mr-1"></i>${item.fuel}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                            <button onclick="openDetailModal('${item.id}')" class="text-xs text-amber-400 font-bold hover:underline flex items-center gap-1">
+                                View Details <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+
+                            <div class="flex items-center gap-2">
+                                ${currentAdminUser ? `
+                                    <button onclick="deleteListing('${item.id}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-800/50 p-2 rounded-lg text-xs transition-colors" title="Delete Listing">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                ` : ''}
+                                
+                                <a href="https://wa.me/919310290485?text=Hi,%20I%20am%20interested%20in%20buying%20${encodeURIComponent(item.title)}" target="_blank" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white p-2 rounded-lg text-xs transition-colors">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filter Function Trigger
+        function filterStock() {
+            renderStock();
+        }
+
+        // Delete Listing (Works Instantly in LocalStorage & Firestore)
+        async function deleteListing(id) {
+            if (!confirm("Are you sure you want to delete this listing permanently?")) return;
+
+            // Remove locally
+            stockList = stockList.filter(item => String(item.id) !== String(id));
+            localStorage.setItem('mahalaxmi_stock', JSON.stringify(stockList));
+            renderStock();
+            closeDetailModal();
+
+            // Attempt cloud deletion if available
+            try {
+                if (window.db && window.firestoreMethods) {
+                    const { deleteDoc, doc } = window.firestoreMethods;
+                    await deleteDoc(doc(window.db, "cars", String(id)));
+                }
+            } catch(e) {
+                console.log("Deleted locally");
+            }
+
+            showToast("Item deleted successfully!");
+        }
+
+        // Admin Modal Controls
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        // Add Modal Controls
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+        }
+
+        // Admin Authentication Login
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            errorDiv.classList.add('hidden');
+
+            try {
+                if (window.authMethods && window.auth) {
+                    await window.authMethods.signInWithEmailAndPassword(window.auth, email, pass);
+                    closeAdminModal();
+                    showToast("Admin logged in successfully!");
+                } else {
+                    // Local fallback
+                    currentAdminUser = { email: email };
+                    updateAdminUI();
+                    renderStock();
+                    closeAdminModal();
+                    showToast("Admin logged in!");
+                }
+            } catch(err) {
+                errorDiv.textContent = err.message || "Invalid credentials. Please check your admin details.";
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // Handle Admin Logout
+        async function handleLogout() {
+            if (window.authMethods && window.auth) {
+                await window.authMethods.signOut(window.auth);
+            }
+            currentAdminUser = null;
+            updateAdminUI();
+            renderStock();
+            closeAdminModal();
+            showToast("Signed out successfully.");
+        }
+
+        // Update UI based on Admin Login state
+        function updateAdminUI() {
+            const badge = document.getElementById('adminBadge');
+            const btnText = document.getElementById('adminBtnText');
+            const addBtn = document.getElementById('addStockBtn');
+            const mobileAddBtn = document.getElementById('mobileAddBtn');
+            const loginView = document.getElementById('loginView');
+            const authView = document.getElementById('authenticatedView');
+
+            if (currentAdminUser) {
+                badge.classList.remove('hidden');
+                btnText.textContent = "Admin Active";
+                addBtn.classList.remove('hidden');
+                mobileAddBtn.classList.remove('hidden');
+                loginView.classList.add('hidden');
+                authView.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                btnText.textContent = "Admin Login";
+                addBtn.classList.add('hidden');
+                mobileAddBtn.classList.add('hidden');
+                loginView.classList.remove('hidden');
+                authView.classList.add('hidden');
+            }
+        }
+
+        // Handle Adding New Stock
+        async function handleAddStock(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('addCategory').value;
+            const title = document.getElementById('addTitle').value;
+            const price = document.getElementById('addPrice').value;
+            const year = document.getElementById('addYear').value;
+            const km = document.getElementById('addKm').value;
+            const fuel = document.getElementById('addFuel').value;
+            const transmission = document.getElementById('addTransmission').value;
+            
+            const fileInput = document.getElementById('addImageFiles');
+            const urlInput = document.getElementById('addImageUrls').value;
+
+            let imagesList = [];
+
+            // Read Multi-line URLs
+            if (urlInput.trim()) {
+                imagesList = urlInput.split('\n').map(u => u.trim()).filter(u => u.length > 0);
+            }
+
+            // Convert File Uploads to Data URLs
+            if (fileInput.files.length > 0) {
+                const readFiles = Array.from(fileInput.files).map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(file);
+                    });
+                });
+                const fileUrls = await Promise.all(readFiles);
+                imagesList = [...imagesList, ...fileUrls];
+            }
+
+            if (imagesList.length === 0) {
+                imagesList = ["https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80"];
+            }
+
+            const newItem = {
+                id: "car-" + Date.now(),
+                type: category,
+                title,
+                price,
+                year,
+                km,
+                fuel,
+                transmission,
+                images: imagesList
+            };
+
+            stockList.unshift(newItem);
+            localStorage.setItem('mahalaxmi_stock', JSON.stringify(stockList));
+            renderStock();
+            closeAddModal();
+            showToast("New item added to inventory!");
+
+            // Save to Firestore if available
+            try {
+                if (window.db && window.firestoreMethods) {
+                    const { collection, addDoc } = window.firestoreMethods;
+                    await addDoc(collection(window.db, "cars"), newItem);
+                }
+            } catch(e) {}
+        }
+
+        // Open Detail Modal & Image Carousel
+        function openDetailModal(id) {
+            const item = stockList.find(i => String(i.id) === String(id));
+            if (!item) return;
+
+            currentActiveItem = item;
+            activeCarouselImages = item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80"];
+            currentCarouselIndex = 0;
+
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailPrice').textContent = "₹" + item.price;
+            document.getElementById('detailSpecs').textContent = `${item.year || ''} • ${item.km || ''} • ${item.fuel || ''} • ${item.transmission || ''}`;
+            
+            document.getElementById('detailWhatsapp').href = `https://wa.me/919310290485?text=Hello,%20I%20am%20interested%20in%20buying%20${encodeURIComponent(item.title)}`;
+            
+            const delBtn = document.getElementById('detailDeleteBtn');
+            if (currentAdminUser) {
+                delBtn.classList.remove('hidden');
+                delBtn.onclick = () => deleteListing(item.id);
+            } else {
+                delBtn.classList.add('hidden');
+            }
+
+            updateCarouselView();
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function updateCarouselView() {
+            document.getElementById('detailImage').src = activeCarouselImages[currentCarouselIndex];
+            document.getElementById('imageCounter').textContent = `${currentCarouselIndex + 1} / ${activeCarouselImages.length}`;
+        }
+
+        function nextImage() {
+            if (activeCarouselImages.length <= 1) return;
+            currentCarouselIndex = (currentCarouselIndex + 1) % activeCarouselImages.length;
+            updateCarouselView();
+        }
+
+        function prevImage() {
+            if (activeCarouselImages.length <= 1) return;
+            currentCarouselIndex = (currentCarouselIndex - 1 + activeCarouselImages.length) % activeCarouselImages.length;
+            updateCarouselView();
+        }
+
+        // Show Temporary Feedback Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
